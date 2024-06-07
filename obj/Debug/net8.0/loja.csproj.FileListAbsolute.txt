@@ -102,3 +102,4 @@ C:\Users\lucas\Desktop\Meu\faculdade\loja\loja\obj\Debug\net8.0\refint\loja.dll
 C:\Users\lucas\Desktop\Meu\faculdade\loja\loja\obj\Debug\net8.0\loja.pdb
 C:\Users\lucas\Desktop\Meu\faculdade\loja\loja\obj\Debug\net8.0\loja.genruntimeconfig.cache
 C:\Users\lucas\Desktop\Meu\faculdade\loja\loja\obj\Debug\net8.0\ref\loja.dll
+C:\Users\lucas\Desktop\Meu\faculdade\loja\loja\obj\Debug\net8.0\loja.sourcelink.json

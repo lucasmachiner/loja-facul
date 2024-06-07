@@ -27,7 +27,12 @@ namespace loja.Services
         // Métodd para consultar um produto a partir do seu Id
         public async Task<Produto> GetProductByIdAsync(int id)
         {
-            return await _dbContext.Produtos.FindAsync(id);
+            var produto = await _dbContext.Produtos.FindAsync(id);
+            if (produto == null)
+            {
+                throw new KeyNotFoundException($"Produto com ID {id} não encontrado.");
+            }
+            return produto;
         }
         // Método para gravar um novo produto
         public async Task AddProductAsync(Produto produto)
