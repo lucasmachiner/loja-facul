@@ -1,9 +1,26 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using loja.Data;
 using loja.Models;
 using loja.Services;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("abc"))
+        };
+    });
 
 // Add services to the container.
 
@@ -11,9 +28,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<FornecedorService>();
+builder.Services.AddScoped<UsuarioService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<LojaDbContext>(options => options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 36))));
+
+private readonly LojaDbContext _lojaBbContex;
 
 var app = builder.Build();
 
@@ -127,5 +147,42 @@ app.MapPost("/createCliente", async (LojaDbContext dbContext, Cliente newCliente
 // app.UseAuthorization();
 
 // app.MapControllers();
+
+app.MapPost("/login", async (HttpContext context) =>
+{
+  using var reader = new StreamReader(context.Request.Body);
+  var body = await reader.ReadToEndAsync();
+
+  var json = JsonDocument.Parse(body);
+  var username = json.RootElement.GetProperty("username").GetString();
+  var email = json.RootElement.GetProperty("email").GetString();
+  var senha = json.RootElement.GetProperty("senha").GetString();
+
+  var token = "";
+  if (senha == )
+  {
+    token = GenerateToken(email);
+  }
+  //return token;
+  context.Response.WriteAsync(token);
+});
+
+string GenerateToken(string data)
+{
+  var tokenHandler = new JwtSecurityTokenHandler();
+  var secretKey = Encoding.ASCII.GetBytes("abcabcabcabcabcabcabcabcabcabcabcabc"); //Esta chave sera gravada em uma variavel de ambiente
+  var tokenDecriptor = new SecurityTokenDescriptor
+  {
+    Expires = DateTime.UtcNow.AddHours(1),
+    SigningCredentials = new SigningCredentials(
+          new SymmetricSecurityKey(secretKey),
+          SecurityAlgorithms.HmacSha256Signature
+      )
+  };
+
+  var token = tokenHandler.CreateToken(tokenDecriptor);
+
+  return tokenHandler.WriteToken(token); //Converte para string
+}
 
 app.Run();
